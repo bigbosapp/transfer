@@ -3,110 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galeri File Bordir (Fixed Search)</title>
+    <title>Appsweb</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-
-    <style>
-        /* --- CSS TETAP SAMA --- */
-        :root { --primary: #4285F4; --primary-dark: #3367d6; --success: #2ecc71; --danger: #e74c3c; --warning: #f39c12; --bg: #F5F7FA; --card-bg: #FFFFFF; --text-main: #333; --overlay-bg: rgba(0, 0, 0, 0.85); }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background-color: var(--bg); color: var(--text-main); padding: 20px; min-height: 100vh; }
-        .container { max-width: 1000px; margin: 0 auto; padding-bottom: 200px; }
-        
-        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: white; padding: 15px 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); flex-wrap: wrap; gap: 15px; }
-        .header-title h1 { font-size: 1.5rem; color: #2c3e50; margin: 0; }
-        .restart-btn { position: fixed; top: 20px; left: 20px; background: white; border: 1px solid #ddd; width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 1000; font-size: 1.2rem; transition: 0.3s; color: #555; }
-        .restart-btn:hover { background: var(--danger); color: white; border-color: var(--danger); transform: rotate(-180deg); }
-        .search-box { position: relative; flex-grow: 1; max-width: 300px; }
-        .search-input { width: 100%; padding: 10px 15px 10px 40px; border: 2px solid #eee; border-radius: 50px; font-size: 0.9rem; outline: none; transition: border-color 0.3s; }
-        .search-input:focus { border-color: var(--primary); }
-        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 1rem; color: #999; }
-
-        .breadcrumb-container { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; background: white; padding: 10px 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); font-size: 0.9rem; position: sticky; top: 20px; z-index: 900; border: 1px solid rgba(0,0,0,0.05); }
-        .breadcrumb-item { color: var(--primary); cursor: pointer; text-decoration: none; transition: color 0.2s; }
-        .breadcrumb-item:hover { text-decoration: underline; color: var(--primary-dark); }
-        .breadcrumb-separator { color: #aaa; font-size: 0.8rem; }
-        .breadcrumb-current { color: #555; font-weight: 600; cursor: default; }
-        .btn-breadcrumb-back { background: none; border: none; color: var(--primary); font-size: 1.2rem; cursor: pointer; padding: 0 5px; display: flex; align-items: center; transition: transform 0.2s; }
-        .btn-breadcrumb-back:hover { transform: translateX(-3px); color: var(--primary-dark); }
-        .breadcrumb-divider-line { color: #ddd; margin: 0 5px; font-weight: 300; }
-
-        .file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-        .file-card { background: var(--card-bg); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); height: 220px; justify-content: space-between; position: relative; border: 2px solid transparent; transition: border-color 0.2s, background-color 0.2s; animation: popIn 0.3s ease; }
-        .file-card:hover { transform: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .clickable:hover { border-color: var(--primary); background-color: #f8faff; cursor: pointer; }
-        .green-hover:hover { border-color: var(--success); background-color: #eafaf1; }
-        .icon { font-size: 3.5rem; margin-top: 15px; }
-        .filename { font-size: 0.9rem; font-weight: 500; color: #34495e; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 10px; padding: 0 10px; }
-        .info-btn { position: absolute; top: 10px; right: 10px; background: #fff; border: 1px solid #eee; border-radius: 50%; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 10; font-size: 1rem; font-weight: bold; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.2s; }
-        .info-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
-        .btn-download { background-color: var(--primary); color: white; text-decoration: none; padding: 8px 20px; border-radius: 20px; font-size: 0.85rem; transition: background 0.3s; width: 100%; margin-top: auto; z-index: 5; }
-        .btn-download:hover { background-color: var(--primary-dark); }
-
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay-bg); display: none; justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(5px); animation: fadeIn 0.3s ease; }
-        .modal-box { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 450px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; }
-        
-        #imageModal .modal-content { position: relative; max-width: 90%; max-height: 90%; display: flex; flex-direction: column; align-items: center; }
-        .modal-image { max-width: 100%; max-height: 80vh; border-radius: 8px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); object-fit: contain; }
-        .modal-title { font-size: 1.2rem; margin-bottom: 10px; color: var(--primary); font-weight: 600; }
-        .modal-text { font-size: 0.95rem; color: #555; margin-bottom: 25px; line-height: 1.5; }
-        .close-btn-abs { position: absolute; top: -40px; right: 0; color: white; font-size: 2rem; cursor: pointer; background: none; border: none; }
-        .close-btn-rel { position: absolute; top: 15px; right: 15px; color: #999; font-size: 1.5rem; cursor: pointer; background: none; border: none; }
-        .modal-caption { color: white; margin-top: 15px; font-size: 1rem; text-align: center; }
-        
-        .detail-group { margin-bottom: 15px; text-align: left; }
-        .detail-label { display: block; font-weight: 600; color: #2c3e50; margin-bottom: 5px; font-size: 0.9rem;}
-        .detail-value { display: block; color: #555; word-break: break-word; background: #f8f9fa; padding: 10px; border-radius: 8px;}
-
-        /* WIDGET BACKUP (FLOATING) */
-        .floating-widget {
-            position: fixed; bottom: 20px; right: 20px; width: 340px; background: white;
-            border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.25);
-            padding: 20px; z-index: 3000; display: none;
-            border-left: 5px solid var(--warning); animation: slideUp 0.4s ease;
-        }
-        .fw-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .fw-title { font-weight: 600; font-size: 0.95rem; color: #333; }
-        .fw-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #999; line-height: 1; }
-        .fw-progress-bg { width: 100%; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
-        .fw-progress-fill { height: 100%; background: var(--warning); width: 0%; transition: width 0.3s; }
-        .fw-status { font-size: 0.8rem; color: #666; margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
-        /* LOG TRANSPARAN */
-        .fw-log { 
-            max-height: 120px; overflow-y: auto; 
-            background: rgba(0, 0, 0, 0.03); 
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            font-size: 0.75rem; font-family: monospace; 
-            padding: 8px; margin-top: 10px; border-radius: 6px;
-            display: block; 
-        }
-        .log-item { margin-bottom: 3px; border-bottom: 1px dashed rgba(0,0,0,0.05); padding-bottom: 2px; }
-        .log-ok { color: #27ae60; font-weight: 600; } 
-        .log-err { color: #c0392b; font-weight: 700; } 
-        .log-retry { color: #d35400; font-weight: 500; } 
-        .log-info { color: #7f8c8d; }
-
-        .fw-btn-save { width: 100%; background: var(--success); color: white; border: none; padding: 10px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; margin-top: 15px; display: none; transition: 0.2s; }
-        .fw-btn-save:hover { background-color: #219150; }
-
-        .btn-folder-backup {
-            background-color: var(--warning); color: white; border: none; width: 100%;
-            padding: 12px; border-radius: 8px; font-weight: 600; font-size: 0.95rem;
-            margin-top: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-            box-shadow: 0 4px 6px rgba(243, 156, 18, 0.3); transition: 0.2s;
-        }
-        .btn-folder-backup:hover { background-color: #e67e22; transform: translateY(-2px); }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
-        .status-msg { text-align: center; grid-column: 1 / -1; padding: 40px; color: #7f8c8d; font-size: 1.1rem; }
-    </style>
 </head>
 <body>
 
@@ -114,398 +16,85 @@
 
     <div class="container">
         <div class="header-container">
-            <div class="header-title"><h1>File Tersedia</h1></div>
+            <div class="header-title"><h1>Apps Web</h1></div>
             <div class="search-box">
                 <span class="search-icon">🔍</span>
                 <input type="text" class="search-input" id="searchInput" placeholder="Cari di semua folder..." oninput="onSearchInput(this.value)">
             </div>
         </div>
+
         <div class="breadcrumb-container" id="breadcrumbNav"></div>
-        <div id="statusInfo" style="text-align:center; color:#999; font-size:0.8rem; margin-bottom:10px; display:none;"></div>
+
+        <h5 id="lblFolder" class="section-label" style="display: none;">Folder</h5>
+        <div class="file-grid" id="folderContainer"></div>
+
+        <h5 id="lblFile" class="section-label" style="display: none;">File</h5>
         <div class="file-grid" id="fileContainer"></div>
     </div>
 
+    <div id="statusToast" class="status-toast hide">
+        <span id="statusToastText">Loading ...</span>
+    </div>
+
+    <div id="centerStatusMsg" class="status-msg" style="display: none;"></div>
+
     <div id="floatingWidget" class="floating-widget">
         <div class="fw-header">
-            <span class="fw-title">Backup Berjalan...</span>
+            <span class="fw-title">Proses...</span>
             <div>
+                <button class="fw-btn-toggle-log" onclick="toggleFwLog()">Log</button>
                 <button class="fw-close" onclick="cancelBackup()" title="Batal">×</button>
             </div>
         </div>
         <div class="fw-progress-bg"><div class="fw-progress-fill" id="fwBar"></div></div>
         <div class="fw-status" id="fwStatus">Menyiapkan...</div>
         <div id="fwLog" class="fw-log"></div>
-        <button id="fwBtnSave" class="fw-btn-save" onclick="saveFinalZip()">💾 DOWNLOAD ZIP</button>
+        <button id="fwBtnSave" class="fw-btn-save" onclick="saveFinalZip()">💾 DOWNLOAD </button>
     </div>
 
     <div class="modal-overlay" id="imageModal" onclick="closePreview(event)">
         <div class="modal-content">
             <button class="close-btn-abs" onclick="closePreview(event)">×</button>
             <img src="" alt="Preview" id="previewImage" class="modal-image">
-            <div class="modal-caption" id="previewCaption">Nama File</div>
+            <div class="modal-caption" id="previewCaption">Nama </div>
             <a href="#" id="previewDownload" class="modal-download">Download Gambar</a>
         </div>
     </div>
 
     <div class="modal-overlay" id="detailsModal" onclick="closeModal('detailsModal', event)">
-        <div class="modal-box" style="text-align: left;">
+        <div class="modal-box modal-detail-layout">
             <button class="close-btn-rel" onclick="closeModal('detailsModal', event)">×</button>
-            <h3 class="modal-title">Detail File</h3>
-            <div class="detail-group"><span class="detail-label">Nama File:</span><span class="detail-value" id="detailName">-</span></div>
-            <div class="detail-group"><span class="detail-label">Waktu Upload:</span><span class="detail-value" id="detailDate">-</span></div>
-            <div class="detail-group"><span class="detail-label">Lokasi:</span><span class="detail-value" id="detailLocation" style="color: var(--primary); font-weight:500;">-</span></div>
-            <div class="detail-group" id="detailCountGroup" style="display: none;"><span class="detail-label">Total Isi:</span><span class="detail-value" id="detailCount" style="color: var(--success); font-weight:600;">-</span></div>
-            <div id="folderBackupContainer"></div>
+            <h3 class="modal-title">Info File</h3>
+            
+            <div class="detail-scroll-area">
+                <div class="detail-group">
+                    <span class="detail-label">Nama </span>
+                    <span class="detail-value" id="detailName">-</span>
+                </div>
+                <div class="detail-group">
+                    <span class="detail-label">Di Upload</span>
+                    <span class="detail-value" id="detailDate">-</span>
+                </div>
+                <div class="detail-group">
+                    <span class="detail-label">Lokasi Folder</span>
+                    <span class="detail-value" id="detailLocation">-</span>
+                </div>
+                
+                <div class="detail-group" id="expiryGroup" style="display: none;">
+                    <span class="detail-label" style="color: var(--danger);">Kadaluarsa dalam 48 Jam</span>
+                    <span class="detail-value expiry-alert" id="expiryTimer"></span>
+                </div>
+
+                <div class="detail-group" id="detailCountGroup" style="display: none;">
+                    <span class="detail-label">Isi</span>
+                    <span class="detail-value" id="detailCount" style="color: var(--success); font-weight:600;">-</span>
+                </div>
+            </div>
+            
+            <div id="folderBackupContainer" class="modal-footer-action"></div>
         </div>
     </div>
 
-    <script>
-        const API_KEY = 'AIzaSyCOjFDu2U4uR56sYWrLgD84RenLkWmHzC8'; 
-        const ROOT_FOLDER_ID = '1EtYGlzkm1MIG7zB92RU7mVZ-dN5oDpvj';
-
-        let currentPath = [{id: ROOT_FOLDER_ID, name: 'Beranda'}];
-        let searchTimeout = null; 
-        
-        let renderQueue = [];
-        let loadController = null;
-        let backupAbortController = null;
-        let finalZipBlob = null;
-        let finalZipName = "";
-
-        window.onload = function() { renderBreadcrumbs(); startStaggeredLoad(ROOT_FOLDER_ID); };
-        function restartApp() { localStorage.clear(); sessionStorage.clear(); window.location.reload(); }
-
-        // --- 1. RENDER BERTAHAP (Anti-Freeze) ---
-        async function startStaggeredLoad(folderId) {
-            if(loadController) loadController.abort();
-            loadController = new AbortController();
-            const signal = loadController.signal;
-
-            const container = document.getElementById('fileContainer');
-            const statusInfo = document.getElementById('statusInfo');
-            container.innerHTML = '';
-            statusInfo.style.display = 'block';
-            statusInfo.innerText = "Memuat data...";
-
-            let pageToken = null;
-            let totalLoaded = 0;
-
-            try {
-                do {
-                    if (signal.aborted) break;
-
-                    let url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&fields=nextPageToken,files(id,name,mimeType,webContentLink,webViewLink,createdTime)&pageSize=20&key=${API_KEY}`;
-                    if (pageToken) url += `&pageToken=${pageToken}`;
-
-                    const res = await fetch(url, { signal });
-                    const data = await res.json();
-
-                    if (data.files && data.files.length > 0) {
-                        renderBatch(data.files);
-                        totalLoaded += data.files.length;
-                        statusInfo.innerText = `Memuat... (${totalLoaded} file)`;
-                    }
-
-                    pageToken = data.nextPageToken;
-                    if (pageToken) await new Promise(r => setTimeout(r, 1000));
-
-                } while (pageToken);
-
-                statusInfo.innerText = `Selesai. Total ${totalLoaded} file.`;
-                if(totalLoaded === 0) container.innerHTML = '<div class="status-msg">Folder kosong.</div>';
-
-            } catch (e) {
-                if (e.name !== 'AbortError') container.innerHTML += `<div class="status-msg" style="color:red">Error: ${e.message}</div>`;
-            }
-        }
-
-        function renderBatch(files) {
-            const container = document.getElementById('fileContainer');
-            const fragment = document.createDocumentFragment();
-            files.sort((a,b) => {
-                const ad = a.mimeType.includes('folder') ? 0 : 1;
-                const bd = b.mimeType.includes('folder') ? 0 : 1;
-                return ad - bd;
-            });
-            files.forEach(f => {
-                const div = createCard(f);
-                if(div) fragment.appendChild(div);
-            });
-            container.appendChild(fragment);
-        }
-
-        // --- 2. LOGIKA BACKUP (Fixed API + Deep Search) ---
-        async function startFolderBackup(folderId, folderName) {
-            closeModal('detailsModal');
-            
-            const widget = document.getElementById('floatingWidget');
-            widget.style.display = 'block';
-            document.getElementById('fwStatus').innerText = "Scan folder...";
-            document.getElementById('fwBar').style.width = "0%";
-            document.getElementById('fwLog').innerHTML = "";
-            document.getElementById('fwBtnSave').style.display = 'none';
-            
-            backupAbortController = new AbortController();
-            const signal = backupAbortController.signal;
-            const zip = new JSZip();
-
-            try {
-                fwLog("Memindai file...", "info");
-                let files = [];
-                // GUNAKAN SCAN RECURSIVE (PENTING AGAR FOLDER ANAK TERBAWA)
-                await scanRecursive(folderId, files, "", signal);
-                
-                if(files.length === 0) {
-                    alert("Folder kosong.");
-                    widget.style.display = 'none';
-                    return;
-                }
-
-                fwLog(`Total ${files.length} file.`, "info");
-                
-                for(let i=0; i<files.length; i++) {
-                    if(signal.aborted) throw new Error("Stop");
-                    const item = files[i];
-                    document.getElementById('fwStatus').innerText = `Unduh ${i+1}/${files.length}: ${item.name}`;
-                    
-                    let blob = null;
-                    // Retry Logic 5x
-                    for(let attempt=1; attempt<=5; attempt++) {
-                        if(signal.aborted) break;
-                        try {
-                            const url = `https://www.googleapis.com/drive/v3/files/${item.id}?alt=media&key=${API_KEY}`;
-                            const res = await fetch(url, { signal });
-                            
-                            if(!res.ok) throw new Error("HTTP " + res.status);
-                            blob = await res.blob();
-                            break; 
-                        } catch(e) {
-                            if(attempt < 5) {
-                                fwLog(`⚠ Retry ${attempt}: ${item.name}`, 'retry');
-                                await new Promise(r => setTimeout(r, 2000));
-                            } else {
-                                fwLog(`✖ GAGAL: ${item.name}`, 'err');
-                            }
-                        }
-                    }
-
-                    if(blob) {
-                        zip.file(item.path + item.name, blob);
-                        fwLog(`✔ OK: ${item.name}`, 'ok'); 
-                    }
-
-                    const pct = Math.round(((i+1)/files.length)*100);
-                    document.getElementById('fwBar').style.width = pct+"%";
-                    
-                    await new Promise(r => setTimeout(r, 1000));
-                }
-
-                document.getElementById('fwStatus').innerText = "Memadatkan ZIP...";
-                fwLog("Creating ZIP...", "info");
-                const content = await zip.generateAsync({type:"blob"});
-                
-                finalZipBlob = content;
-                finalZipName = `Backup_${folderName}.zip`;
-                
-                document.getElementById('fwStatus').innerText = "Selesai!";
-                const btn = document.getElementById('fwBtnSave');
-                btn.style.display = 'block';
-                btn.innerText = `💾 DOWNLOAD ZIP (${(content.size/1024/1024).toFixed(2)} MB)`;
-                fwLog("Backup Selesai.", 'ok');
-
-            } catch(e) {
-                if(e.message !== 'Stop') fwLog("Error: " + e.message, 'err');
-            }
-        }
-
-        // --- DEEP SEARCH UTILS ---
-        // Fungsi ini yang bertanggung jawab menembus folder dan anak-anaknya
-        async function scanRecursive(fid, list, path, signal) {
-            let pageToken = null;
-            do {
-                if(signal.aborted) return;
-                // REQUEST FULL METADATA YANG DIPERLUKAN
-                let url = `https://www.googleapis.com/drive/v3/files?q='${fid}'+in+parents+and+trashed=false&fields=nextPageToken,files(id,name,mimeType,webContentLink,webViewLink,createdTime)&pageSize=1000&key=${API_KEY}`;
-                if(pageToken) url += `&pageToken=${pageToken}`;
-                
-                try {
-                    const res = await fetch(url, {signal});
-                    const d = await res.json();
-                    if(d.files) {
-                        for(const f of d.files) {
-                            if(f.mimeType.includes('folder')) {
-                                // JIKA FOLDER, RECURSIVE LAGI
-                                await scanRecursive(f.id, list, path + f.name + "/", signal);
-                            } else if(f.name.match(/\.(dst|emb|jpg|jpeg|png)$/i)) {
-                                // JIKA FILE, MASUKKAN KE LIST
-                                // Penting: Push object lengkap f, bukan cuma id/name
-                                f.path = path; // Inject path manual
-                                list.push(f); 
-                            }
-                        }
-                    }
-                    pageToken = d.nextPageToken;
-                } catch(e) { break; }
-            } while(pageToken);
-        }
-
-        // --- SEARCH GLOBAL DEEP ---
-        async function startDeepSearch(keyword) {
-            if(loadController) loadController.abort();
-            loadController = new AbortController();
-            const signal = loadController.signal;
-
-            const container = document.getElementById('fileContainer');
-            const statusInfo = document.getElementById('statusInfo');
-            container.innerHTML = '';
-            statusInfo.style.display = 'block';
-            statusInfo.innerText = "Memindai seluruh folder (Deep Search)...";
-
-            let allFiles = [];
-            
-            try {
-                // Gunakan scanRecursive dari ROOT untuk mencari semuanya
-                await scanRecursive(ROOT_FOLDER_ID, allFiles, "", signal);
-                
-                // Filter di Memory (karena API tidak support recursive search mudah)
-                const filtered = allFiles.filter(f => f.name.toLowerCase().includes(keyword.toLowerCase()));
-                
-                statusInfo.innerText = `Ditemukan ${filtered.length} file.`;
-                if(filtered.length > 0) renderBatch(filtered);
-                else container.innerHTML = '<div class="status-msg">Tidak ditemukan.</div>';
-
-            } catch(e) {
-               if (e.name !== 'AbortError') container.innerHTML += `<div class="status-msg" style="color:red">Error: ${e.message}</div>`;
-            }
-        }
-
-        function saveFinalZip() { if(finalZipBlob) saveAs(finalZipBlob, finalZipName); }
-        function cancelBackup() { if(backupAbortController) backupAbortController.abort(); document.getElementById('floatingWidget').style.display = 'none'; }
-        
-        function fwLog(m, t) { 
-            const d = document.createElement('div'); 
-            d.className = `log-item log-${t || 'info'}`;
-            d.innerText = m; 
-            const c = document.getElementById('fwLog'); 
-            c.appendChild(d); 
-            c.scrollTop = c.scrollHeight; 
-        }
-
-        // --- DOM HELPER ---
-        function createCard(f) {
-            const n = f.name.toLowerCase();
-            const isDir = f.mimeType.includes('folder');
-            const isImg = n.match(/\.(jpg|jpeg|png)$/i);
-            const isEmb = n.match(/\.(dst|emb)$/i);
-
-            if (!isDir && !isImg && !isEmb) return null;
-
-            let icon='📄', color='#999', cls='file-card';
-            if(isDir) { icon='📁'; color='#4285F4'; cls+=' clickable'; }
-            else if(isImg) { icon='🖼️'; color='#4285F4'; cls+=' clickable'; }
-            else { icon='🧵'; color='#2ecc71'; cls+=' green-hover'; }
-
-            const div = document.createElement('div');
-            div.className = cls;
-
-            const infoBtn = document.createElement('div');
-            infoBtn.className = 'info-btn';
-            infoBtn.innerText = '!';
-            infoBtn.onclick = (e) => { e.stopPropagation(); showDetails(f); };
-
-            const iconDiv = document.createElement('div');
-            iconDiv.className = 'icon';
-            iconDiv.style.color = color;
-            iconDiv.innerText = icon;
-
-            const nameDiv = document.createElement('div');
-            nameDiv.className = 'filename';
-            nameDiv.innerText = f.name;
-            nameDiv.title = f.name;
-
-            div.appendChild(infoBtn); div.appendChild(iconDiv); div.appendChild(nameDiv);
-
-            if (!isDir) {
-                const dlBtn = document.createElement('a');
-                dlBtn.className = 'btn-download';
-                dlBtn.innerText = 'Download';
-                dlBtn.href = f.webContentLink || f.webViewLink;
-                dlBtn.onclick = (e) => e.stopPropagation();
-                div.appendChild(dlBtn);
-            } else {
-                const spacer = document.createElement('div');
-                spacer.style.height = '35px';
-                div.appendChild(spacer);
-            }
-
-            if(isDir) div.onclick = () => openFolder(f.id, f.name);
-            else if(isImg) div.onclick = (e) => { if(e.target !== infoBtn) openPreview(f.id, f.name); };
-
-            return div;
-        }
-
-        // --- NAV & UTILS ---
-        function onSearchInput(val) {
-            if (searchTimeout) clearTimeout(searchTimeout);
-            if (!val.trim()) { startStaggeredLoad(currentPath[currentPath.length-1].id); return; }
-            
-            // Panggil Deep Search
-            searchTimeout = setTimeout(() => startDeepSearch(val), 800);
-        }
-
-        function openFolder(id, name) { currentPath.push({id, name}); renderBreadcrumbs(); startStaggeredLoad(id); }
-        function renderBreadcrumbs() {
-            const nav = document.getElementById('breadcrumbNav');
-            nav.innerHTML = '';
-            if (currentPath.length > 1) {
-                const backBtn = document.createElement('button');
-                backBtn.className = 'btn-breadcrumb-back'; backBtn.innerHTML = '⬅'; 
-                backBtn.onclick = () => { currentPath.pop(); renderBreadcrumbs(); startStaggeredLoad(currentPath[currentPath.length-1].id); };
-                nav.appendChild(backBtn);
-            }
-            currentPath.forEach((item, index) => {
-                const span = document.createElement('span');
-                span.innerText = item.name;
-                span.className = index === currentPath.length - 1 ? 'breadcrumb-current' : 'breadcrumb-item';
-                if(index !== currentPath.length-1) span.onclick = () => { currentPath = currentPath.slice(0, index + 1); renderBreadcrumbs(); startStaggeredLoad(item.id); };
-                nav.appendChild(span);
-                if (index < currentPath.length - 1) nav.appendChild(document.createTextNode(' / '));
-            });
-        }
-
-        function showDetails(file) {
-            document.getElementById('detailName').innerText = file.name;
-            document.getElementById('detailDate').innerText = new Date(file.createdTime).toLocaleDateString();
-            document.getElementById('detailLocation').innerText = currentPath.map(x=>x.name).join(' > ');
-            const cont = document.getElementById('folderBackupContainer');
-            cont.innerHTML = '';
-            const grp = document.getElementById('detailCountGroup');
-            if(file.mimeType.includes('folder')) {
-                grp.style.display = 'block';
-                document.getElementById('detailCount').innerText = '...';
-                const btn = document.createElement('button');
-                btn.className = 'btn-folder-backup';
-                btn.innerHTML = '📦 Backup Folder Ini (ZIP)';
-                btn.onclick = () => startFolderBackup(file.id, file.name);
-                cont.appendChild(btn);
-                calculateCountBg(file.id);
-            } else { grp.style.display = 'none'; }
-            openModal('detailsModal');
-        }
-
-        async function calculateCountBg(id) {
-            try {
-                const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents+and+trashed=false&fields=files(id)&pageSize=1000&key=${API_KEY}`);
-                const d = await res.json();
-                const c = d.files ? d.files.length : 0;
-                document.getElementById('detailCount').innerText = c >= 1000 ? "1000+ item" : c + " item (di root ini)";
-            } catch(e) { document.getElementById('detailCount').innerText = "Gagal hitung"; }
-        }
-
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id, e) { if(!e || e.target.id === id || e.target.classList.contains('close-btn-rel')) document.getElementById(id).style.display = 'none'; }
-        function openPreview(id, name) { document.getElementById('previewImage').src = `https://drive.google.com/thumbnail?id=${id}&sz=w4000`; document.getElementById('previewCaption').innerText = name; document.getElementById('previewDownload').href = `https://drive.google.com/uc?export=download&id=${id}`; openModal('imageModal'); }
-        function goBack() { if (currentPath.length > 1) { currentPath.pop(); renderBreadcrumbs(); startStaggeredLoad(currentPath[currentPath.length-1].id); } }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
